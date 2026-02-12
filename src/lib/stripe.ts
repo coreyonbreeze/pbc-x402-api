@@ -1,9 +1,26 @@
 import Stripe from "stripe";
 
-// Initialize Stripe client
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-12-18.acacia",
-});
+// Initialize Stripe client (lazy - only when actually used)
+let stripeClient: Stripe | null = null;
+
+// Demo mode: when STRIPE_SECRET_KEY is not set, use a placeholder address
+const DEMO_MODE = !process.env.STRIPE_SECRET_KEY;
+const DEMO_DEPOSIT_ADDRESS = "0xDEMO_ADDRESS_SET_STRIPE_SECRET_KEY_FOR_REAL_PAYMENTS";
+
+function getStripeClient(): Stripe {
+  if (!stripeClient) {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey) {
+      throw new Error(
+        "STRIPE_SECRET_KEY not set. Get it from Stripe Dashboard or GCP Secret Manager."
+      );
+    }
+    stripeClient = new Stripe(apiKey, {
+      apiVersion: "2024-12-18.acacia",
+    });
+  }
+  return stripeClient;
+}
 
 /**
  * Context passed by x402 middleware
@@ -37,13 +54,19 @@ export async function createPayToAddress(context: PayToContext): Promise<string>
     }
   }
 
+  // Demo mode: return placeholder address for testing without Stripe
+  if (DEMO_MODE) {
+    console.log("⚠️  DEMO MODE: Returning placeholder deposit address. Set STRIPE_SECRET_KEY for real payments.");
+    return DEMO_DEPOSIT_ADDRESS;
+  }
+
   // Create a new PaymentIntent to get a fresh crypto deposit address
   // USDC has 6 decimals, so $20.00 = 2000 cents = 20000000 in USDC units
   // Stripe wants amount in cents (smallest currency unit for USD)
   const amountInCents = 2000; // $20.00 default - actual amount will be determined by order
 
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntent = await getStripeClient().paymentIntents.create({
       amount: amountInCents,
       currency: "usd",
       payment_method_types: ["crypto"],
@@ -88,7 +111,7 @@ export async function getPaymentIntentStatus(paymentIntentId: string): Promise<{
   amount: number;
   currency: string;
 }> {
-  const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+  const paymentIntent = await getStripeClient().paymentIntents.retrieve(paymentIntentId);
   
   return {
     status: paymentIntent.status,

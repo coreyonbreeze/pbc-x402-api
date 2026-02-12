@@ -20,36 +20,6 @@ menuRoutes.get("/menu", (c) => {
 });
 
 /**
- * GET /api/menu/:id
- * Returns a specific menu item by ID
- */
-menuRoutes.get("/menu/:id", (c) => {
-  const id = c.req.param("id");
-  
-  // Search all categories
-  const allItems = [
-    ...menuData.sandwiches,
-    ...menuData.sides,
-    ...menuData.drinks,
-  ];
-  
-  const item = allItems.find((i) => i.id === id);
-  
-  if (!item) {
-    return c.json({ error: "Item not found", id }, 404);
-  }
-  
-  return c.json({
-    item,
-    tax: menuData.tax,
-    _meta: {
-      timestamp: new Date().toISOString(),
-      currency: "USD",
-    },
-  });
-});
-
-/**
  * GET /api/menu/calculate
  * Calculate total with tax for given items
  * Query params: items=brisket,chips,soda
@@ -96,6 +66,37 @@ menuRoutes.get("/menu/calculate", (c) => {
     taxDescription: menuData.tax.description,
     total: Math.round(total * 100) / 100,
     totalInCents: Math.round(total * 100),
+    _meta: {
+      timestamp: new Date().toISOString(),
+      currency: "USD",
+    },
+  });
+});
+
+/**
+ * GET /api/menu/:id
+ * Returns a specific menu item by ID
+ * (Must be defined AFTER /menu/calculate to avoid route conflicts)
+ */
+menuRoutes.get("/menu/:id", (c) => {
+  const id = c.req.param("id");
+  
+  // Search all categories
+  const allItems = [
+    ...menuData.sandwiches,
+    ...menuData.sides,
+    ...menuData.drinks,
+  ];
+  
+  const item = allItems.find((i) => i.id === id);
+  
+  if (!item) {
+    return c.json({ error: "Item not found", id }, 404);
+  }
+  
+  return c.json({
+    item,
+    tax: menuData.tax,
     _meta: {
       timestamp: new Date().toISOString(),
       currency: "USD",
