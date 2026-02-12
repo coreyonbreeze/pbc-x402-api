@@ -1,0 +1,107 @@
+{
+  "restaurant": {
+    "name": "Prospect Butcher Co",
+    "description": "Brooklyn's premier whole-animal butcher shop. Craft sandwiches made with house-cured meats.",
+    "locations": [
+      {
+        "id": "shop-1",
+        "name": "Vanderbilt",
+        "address": "665 Vanderbilt Ave, Brooklyn, NY 11238"
+      },
+      {
+        "id": "shop-2",
+        "name": "Greenpoint",
+        "address": "113A Nassau Ave, Brooklyn, NY 11222"
+      }
+    ]
+  },
+  "sandwiches": [
+    {
+      "id": "brisket",
+      "name": "Smoked Brisket",
+      "description": "House-smoked beef brisket, pickled onions, horseradish cream, on ciabatta",
+      "price": 17.00
+    },
+    {
+      "id": "pulled-pork",
+      "name": "Pulled Pork",
+      "description": "Slow-roasted pulled pork, house slaw, Carolina mustard BBQ, on brioche",
+      "price": 15.00
+    },
+    {
+      "id": "pastrami",
+      "name": "House Pastrami",
+      "description": "Hand-cured pastrami, spicy mustard, Swiss, sauerkraut, on rye",
+      "price": 18.00
+    },
+    {
+      "id": "italian",
+      "name": "Italian Hero",
+      "description": "Capicola, sopressata, mortadella, provolone, hot peppers, olive oil, on a seeded roll",
+      "price": 16.00
+    },
+    {
+      "id": "porchetta",
+      "name": "Porchetta",
+      "description": "Crispy porchetta, broccoli rabe, sharp provolone, on ciabatta",
+      "price": 17.00
+    },
+    {
+      "id": "turkey-club",
+      "name": "Roasted Turkey Club",
+      "description": "House-roasted turkey, bacon, avocado, lettuce, tomato, mayo, on sourdough",
+      "price": 15.00
+    },
+    {
+      "id": "meatball",
+      "name": "Meatball Parm",
+      "description": "Beef and pork meatballs, marinara, fresh mozzarella, basil, on a hero roll",
+      "price": 14.00
+    },
+    {
+      "id": "cuban",
+      "name": "Cuban",
+      "description": "Roasted pork, ham, Swiss, pickles, mustard, pressed on Cuban bread",
+      "price": 16.00
+    }
+  ],
+  "sides": [
+    {
+      "id": "chips",
+      "name": "House Chips",
+      "price": 3.00
+    },
+    {
+      "id": "pickle",
+      "name": "Half-Sour Pickle",
+      "price": 2.00
+    },
+    {
+      "id": "slaw",
+      "name": "Coleslaw",
+      "price": 4.00
+    }
+  ],
+  "drinks": [
+    {
+      "id": "soda",
+      "name": "Soda (various)",
+      "price": 3.00
+    },
+    {
+      "id": "water",
+      "name": "Bottled Water",
+      "price": 2.00
+    }
+  ],
+  "tax": {
+    "rate": 0.08875,
+    "description": "NYC sales tax (8.875%)",
+    "note": "All prices shown are pre-tax. Tax will be calculated at checkout."
+  },
+  "payment": {
+    "accepted": ["USDC"],
+    "network": "Base",
+    "protocol": "x402"
+  }
+}
