@@ -25,16 +25,17 @@ function getStripeClient(): Stripe {
 /**
  * Context passed by x402 middleware
  */
-interface PayToContext {
+export interface PayToContext {
   paymentHeader?: string;
   request?: Request;
+  amountInCents?: number; // Actual order total in cents
 }
 
 /**
  * Creates a PaymentIntent and returns a deposit address for USDC payment
  * This is called by the x402 middleware when generating 402 responses
  * 
- * @param context - Context from x402 middleware with payment header info
+ * @param context - Context with payment header info and order amount
  * @returns The Base deposit address for USDC payment
  */
 export async function createPayToAddress(context: PayToContext): Promise<string> {
@@ -60,10 +61,9 @@ export async function createPayToAddress(context: PayToContext): Promise<string>
     return DEMO_DEPOSIT_ADDRESS;
   }
 
-  // Create a new PaymentIntent to get a fresh crypto deposit address
-  // USDC has 6 decimals, so $20.00 = 2000 cents = 20000000 in USDC units
-  // Stripe wants amount in cents (smallest currency unit for USD)
-  const amountInCents = 2000; // $20.00 default - actual amount will be determined by order
+  // Use actual order amount, or default to $20 if not provided
+  // amountInCents should be passed by the order route based on calculated total
+  const amountInCents = context.amountInCents || 2000;
 
   try {
     const paymentIntent = await getStripeClient().paymentIntents.create({
@@ -82,6 +82,7 @@ export async function createPayToAddress(context: PayToContext): Promise<string>
       metadata: {
         source: "pbc-x402-api",
         product: "sandwich-order",
+        amountCents: amountInCents.toString(),
       },
     });
 
@@ -94,7 +95,7 @@ export async function createPayToAddress(context: PayToContext): Promise<string>
 
     const payToAddress = depositDetails.deposit_addresses.base.address;
     
-    console.log(`💰 Created PaymentIntent ${paymentIntent.id} with deposit address: ${payToAddress}`);
+    console.log(`💰 Created PaymentIntent ${paymentIntent.id} for $${(amountInCents / 100).toFixed(2)} with deposit address: ${payToAddress}`);
     
     return payToAddress;
   } catch (error) {
@@ -118,4 +119,11 @@ export async function getPaymentIntentStatus(paymentIntentId: string): Promise<{
     amount: paymentIntent.amount,
     currency: paymentIntent.currency,
   };
+}
+
+/**
+ * Get Stripe client for external use (e.g., webhooks)
+ */
+export function getStripe(): Stripe {
+  return getStripeClient();
 }

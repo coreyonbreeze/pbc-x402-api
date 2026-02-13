@@ -1,0 +1,40 @@
+# Fly.io deployment configuration
+# Deploy: fly launch --name pbc-x402-api
+# Set secrets: fly secrets set STRIPE_SECRET_KEY=sk_...
+
+app = "pbc-x402-api"
+primary_region = "ewr"  # Newark, NJ (close to Brooklyn)
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[http_service.concurrency]
+  type = "requests"
+  hard_limit = 250
+  soft_limit = 200
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[checks]
+  [checks.health]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/"
+    port = 3000
+    timeout = "5s"
+    type = "http"
